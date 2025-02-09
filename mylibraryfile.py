@@ -368,16 +368,53 @@ import streamlit as st
 
 
 # Streamlit UI
-st.title("Book Categorizer")
-st.header("Automatically categorize books by their description")
-st.write("Enter a description of the book, and this app will categorize it into a relevant topic!")
+import streamlit as st
+from sklearn.metrics.pairwise import cosine_similarity
 
-bookdescription = st.text_area("Book Description:", placeholder="Type or paste the book description here...", height=150)
+# Assume categorizeBooks and categories are defined elsewhere in your code.
 
+# Function to get related topics using cosine similarity
+def get_related_topics(topic_index, topic_similarities, categories):
+    similarities = topic_similarities[topic_index]
+    related_topic_indices = similarities.argsort()[-3:-1]  # Get top 2 related topics
+    related_topics = [categories[i] for i in related_topic_indices]
+    return related_topics
+
+# Sample cosine similarity (replace with your model-generated data)
+topic_similarities = cosine_similarity(kmeans.cluster_centers_)  # Replace with your logic
+
+# Streamlit UI
+st.title("📚 Book Categorizer with Related Topics")
+st.header("🔍 Automatically Categorize Books by Their Description")
+
+st.write("""
+Enter a description of the book, and this app will categorize it into a relevant topic!
+""")
+
+# Input field for book description
+bookdescription = st.text_area(
+    "Book Description:",
+    placeholder="Type or paste the book description here...",
+    height=150
+)
+
+# Button for categorization
 if st.button("Categorize Book"):
     if len(bookdescription.strip()) == 0:
-        st.error("Please enter a valid book description!")
+        st.error("⚠️ Please enter a valid book description!")
     else:
-        category = categorizeBooks(bookdescription)
-        st.success(f"Book Category: {category}")
+        # Call to categorizeBooks (replace with your logic)
+        category_index = categorizeBooks(bookdescription)
+        category = categories[category_index]
 
+        # Get related topics
+        related_topics = get_related_topics(category_index, topic_similarities, categories)
+
+        # Display the result
+        st.success(f"📖 **Main Category:** {category}")
+        st.write("🔗 **Related Topics:**")
+        for topic in related_topics:
+            st.markdown(f"- {topic}")
+
+        # Extra note for visual structure
+        st.write("---")
