@@ -47,7 +47,7 @@ import os
 # In[5]:
 
 
-data = pd.read_excel("data = pd.read_excel("AllITBooks_DataSet.xlsx")
+data = pd.read_excel("AllITBooks_DataSet.xlsx")
 ")
 data.head()
 
