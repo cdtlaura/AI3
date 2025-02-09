@@ -369,22 +369,6 @@ import streamlit as st
 
 # Streamlit UI
 import streamlit as st
-from sklearn.metrics.pairwise import cosine_similarity
-
-# Assume categorizeBooks and categories are defined elsewhere in your code.
-
-# Function to get related topics using cosine similarity
-def get_related_topics(topic_index, topic_similarities, categories):
-    similarities = topic_similarities[topic_index]
-    related_topic_indices = similarities.argsort()[-3:-1]  # Get top 2 related topics
-    related_topics = [categories[i] for i in related_topic_indices]
-    return related_topics
-
-# Sample cosine similarity (replace with your model-generated data)
-topic_similarities = cosine_similarity(kmeans.cluster_centers_)  # Replace with your logic
-
-# Streamlit UI
-import streamlit as st
 import joblib
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -435,7 +419,6 @@ def get_related_topics(topic_index):
 # Streamlit UI
 st.title("📚 AI Book Categorizer with Related Topics")
 st.write("This application automatically categorizes books based on their description and suggests related topics.")
-
 st.markdown("---")
 
 # User input section
