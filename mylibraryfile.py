@@ -48,7 +48,6 @@ import os
 
 
 data = pd.read_excel("AllITBooks_DataSet.xlsx")
-")
 data.head()
 
 
