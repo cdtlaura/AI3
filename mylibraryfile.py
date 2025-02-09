@@ -368,53 +368,6 @@ import streamlit as st
 
 
 # Streamlit UI
-import streamlit as st
-from sklearn.metrics.pairwise import cosine_similarity
-import joblib
-import nltk
-
-# Load pre-trained models and categories
-tfidf_vectorizer = joblib.load("models/tfidf_vectorizer.pkl")
-kmeans = joblib.load("models/kmeans_model.pkl")
-
-categories = {
-    0: "Content Management Systems (CMS)",
-    1: "Web Development and Frameworks",
-    2: "Data Analysis and Big Data",
-    3: "Game Development",
-    4: "Network and Security Administration",
-    5: "Programming Languages and Functional Programming",
-    6: "Mobile App Development",
-    7: "Java and Enterprise Applications",
-    8: "Python and Machine Learning",
-    9: "Databases and SQL Administration"
-}
-
-# Cosine similarity matrix for related topics
-topic_similarities = cosine_similarity(kmeans.cluster_centers_)
-
-# Function to categorize books
-def categorizeBooks(bookdescription):
-    bookdescription_cleaned = preprocess_text(bookdescription)
-    bookdescription_vectorized = tfidf_vectorizer.transform([bookdescription_cleaned])
-    topic_result = kmeans.predict(bookdescription_vectorized)
-    return topic_result[0]
-
-# Function to get related topics
-def get_related_topics(topic_index):
-    similarities = topic_similarities[topic_index]
-    related_topic_indices = similarities.argsort()[-3:-1]
-    return [categories[i] for i in related_topic_indices]
-
-# Preprocess text for model input
-def preprocess_text(text):
-    text = text.lower()
-    tokens = nltk.word_tokenize(text)
-    stop_words = set(nltk.corpus.stopwords.words('english'))
-    filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
-    return " ".join(filtered_tokens)
-
-# Streamlit UI
 st.title("📚 AI Book Categorizer with Related Topics")
 st.write("This application automatically categorizes books based on their description and suggests related topics.")
 
