@@ -369,14 +369,14 @@ import streamlit as st
 
 # Streamlit UI
 import streamlit as st
-import joblib
 from sklearn.metrics.pairwise import cosine_similarity
+import joblib
+import nltk
 
-# Load pre-trained models
+# Load pre-trained models and categories
 tfidf_vectorizer = joblib.load("models/tfidf_vectorizer.pkl")
 kmeans = joblib.load("models/kmeans_model.pkl")
 
-# Categories definition
 categories = {
     0: "Content Management Systems (CMS)",
     1: "Web Development and Frameworks",
@@ -390,38 +390,34 @@ categories = {
     9: "Databases and SQL Administration"
 }
 
-# Function to clean and categorize books
-def preprocess_text(text):
-    from nltk.corpus import stopwords
-    from nltk.tokenize import word_tokenize
-    stop_words = set(stopwords.words('english'))
-    
-    text = str(text).lower()
-    tokens = word_tokenize(text)
-    filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
-    return " ".join(filtered_tokens)
+# Cosine similarity matrix for related topics
+topic_similarities = cosine_similarity(kmeans.cluster_centers_)
 
+# Function to categorize books
 def categorizeBooks(bookdescription):
     bookdescription_cleaned = preprocess_text(bookdescription)
-    bookdecription_vectorized = tfidf_vectorizer.transform([bookdescription_cleaned])
-    topic_result = kmeans.predict(bookdecription_vectorized)
-    book_category = categories.get(int(topic_result[0]), "Unknown")
-    return topic_result[0], book_category
+    bookdescription_vectorized = tfidf_vectorizer.transform([bookdescription_cleaned])
+    topic_result = kmeans.predict(bookdescription_vectorized)
+    return topic_result[0]
 
-# Function to get related topics using cosine similarity
+# Function to get related topics
 def get_related_topics(topic_index):
-    topic_similarities = cosine_similarity(kmeans.cluster_centers_)
     similarities = topic_similarities[topic_index]
-    related_topic_indices = similarities.argsort()[-3:-1]  # Get top 2 related topics
-    related_topics = [categories[i] for i in related_topic_indices]
-    return related_topics
+    related_topic_indices = similarities.argsort()[-3:-1]
+    return [categories[i] for i in related_topic_indices]
+
+# Preprocess text for model input
+def preprocess_text(text):
+    text = text.lower()
+    tokens = nltk.word_tokenize(text)
+    stop_words = set(nltk.corpus.stopwords.words('english'))
+    filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
+    return " ".join(filtered_tokens)
 
 # Streamlit UI
 st.title("📚 AI Book Categorizer with Related Topics")
 st.write("This application automatically categorizes books based on their description and suggests related topics.")
-st.markdown("---")
 
-# User input section
 st.subheader("🔍 Enter Book Description:")
 bookdescription = st.text_area("Book Description:", placeholder="Type or paste the book description here...", height=150)
 
@@ -429,15 +425,15 @@ if st.button("📖 Categorize Book"):
     if len(bookdescription.strip()) == 0:
         st.error("⚠️ Please enter a valid book description!")
     else:
-        # Categorize book and fetch related topics
-        topic_index, category = categorizeBooks(bookdescription)
-        related_topics = get_related_topics(topic_index)
-        
-        # Display the main category and related topics
-        st.success(f"**Main Category:** {category}")
-        st.write("### 🔗 **Related Topics:**")
+        # Get main category
+        category_index = categorizeBooks(bookdescription)
+        main_category = categories[category_index]
+
+        # Get related topics
+        related_topics = get_related_topics(category_index)
+
+        # Display result
+        st.success(f"**Main Category:** {main_category}")
+        st.write("🔗 **Related Topics:**")
         for topic in related_topics:
             st.markdown(f"- {topic}")
-
-        st.markdown("---")
-        st.info("This categorization is powered by machine learning models trained using KMeans clustering and TF-IDF word embeddings.")
