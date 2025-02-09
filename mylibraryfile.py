@@ -371,6 +371,9 @@ import streamlit as st
 st.title("📚 AI Book Categorizer with Related Topics")
 st.write("This application automatically categorizes books based on their description and suggests related topics.")
 
+st.markdown("---")
+
+# User input section
 st.subheader("🔍 Enter Book Description:")
 bookdescription = st.text_area("Book Description:", placeholder="Type or paste the book description here...", height=150)
 
@@ -378,15 +381,15 @@ if st.button("📖 Categorize Book"):
     if len(bookdescription.strip()) == 0:
         st.error("⚠️ Please enter a valid book description!")
     else:
-        # Get main category
-        category_index = categorizeBooks(bookdescription)
-        main_category = categories[category_index]
-
-        # Get related topics
-        related_topics = get_related_topics(category_index)
-
-        # Display result
-        st.success(f"**Main Category:** {main_category}")
-        st.write("🔗 **Related Topics:**")
+        # Categorize book and fetch related topics
+        topic_index, category = categorizeBooks(bookdescription)
+        related_topics = get_related_topics(topic_index)
+        
+        # Display the main category and related topics
+        st.success(f"**Main Category:** {category}")
+        st.write("### 🔗 **Related Topics:**")
         for topic in related_topics:
             st.markdown(f"- {topic}")
+
+        st.markdown("---")
+        st.info("This categorization is powered by machine learning models trained using KMeans clustering and TF-IDF word embeddings.")
